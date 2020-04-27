@@ -81,6 +81,83 @@ public class Controller {
         primaryStage.show();
     }
 
+    //GAME
+    public static class ButtonLauchGameHandler implements EventHandler<ActionEvent> {
+
+        Button firstButtonClick = VueGame.firstButtonClick;
+        Background backgroundOnClick = VueGame.backgroundOnClick;
+        Button[][] btn = VueGame.btn;
+        boolean[][] isOK = VueGame.isOK;
+        Label lScore = VueGame.lScore;
+
+        Button b;
+        int i, j;
+
+        public ButtonLauchGameHandler(Button b, int i, int j) {
+            this.b = b;
+            this.i = i;
+            this.j = j;
+        }
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+
+            if (firstButtonClick == b) {
+
+                Alert a = new Alert(Alert.AlertType.INFORMATION);
+                a.setContentText("You Cannot Change this Case Again ! ");
+                a.showAndWait();
+
+
+            } else { //click ok
+
+                System.out.println("click ok");
+
+                if (firstButtonClick == null) { //first click
+
+                    firstButtonClick = b;
+                    b.setBackground(backgroundOnClick);
+                    b.setTextFill(FactoryLayout.firstBackGroundColor);
+                    b.setOnMouseExited(e -> {
+                        b.setBackground(backgroundOnClick);
+                    });
+                    System.out.println("firstbtn null");
+
+                } else { //second click
+
+
+                    if (firstButtonClick.getText().equalsIgnoreCase(b.getText())) { //match
+
+                        b.setBackground(backgroundOnClick);
+                        b.setTextFill(FactoryLayout.firstBackGroundColor);
+                        b.setOnMouseExited(e -> {
+                            b.setBackground(backgroundOnClick);
+                        });
+                        isOK[i][j] = true;
+
+                        //isOK[][j] = true;
+                        System.out.println("first not null and egal");
+
+                        player.setScore(player.getScore() + 1);
+
+                    } else { //not match
+
+                        firstButtonClick.setBackground(FactoryLayout.secondBack);
+                        b.setBackground(FactoryLayout.secondBack);
+
+                        firstButtonClick.setTextFill(FactoryLayout.secondBackGroundColor);
+                        System.out.println("first not null and not egal");
+
+                        player.setScore(player.getScore() - 1);
+                    }
+                    firstButtonClick = null;
+                    lScore.setText("Score : " + player.getScore());
+                }
+            }
+
+
+        }
+    }
 
     //CONFIG
 
