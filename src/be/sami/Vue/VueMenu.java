@@ -1,22 +1,17 @@
 package be.sami.Vue;
 
 import be.sami.Controller;
-import be.sami.FactoryLayout;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 public class VueMenu {
 
-    private final Stage primaryStage = Controller.primaryStage;
-    private final Scene SceneGame = Controller.SceneGame;
-    private final Scene SceneConfig = Controller.SceneConfig;
-    private final Scene SceneScore = Controller.SceneScore;
-
     private Scene SceneMenu; //export to Controller
     private VBox vBxMenu; //export to Controller
+
+    private Button btnGameMenu,btnConfigMenu,btnBestScoreMenu;
 
     public VueMenu(){
         initMenu();
@@ -28,7 +23,7 @@ public class VueMenu {
 
         Insets insetPadding = new Insets(btnPaddingY, btnPaddingX, btnPaddingY, btnPaddingX);//Right Bottom Left Top
 
-        Button btnGameMenu = FactoryLayout.createButton("Launch Game", e -> { primaryStage.setScene(SceneGame); });
+        btnGameMenu = FactoryLayout.createButton("Launch Game");
         btnGameMenu.setPadding(insetPadding);
         btnGameMenu.setOnAction(e -> {
                 /*if(player == null){
@@ -41,13 +36,12 @@ public class VueMenu {
                 else{
                     primaryStage.setScene(SceneGame);
                 }*/
-            primaryStage.setScene(SceneGame);
         });
 
-        Button btnConfigMenu = FactoryLayout.createButton("Configurations", e ->{ primaryStage.setScene(SceneConfig);});
+        btnConfigMenu = FactoryLayout.createButton("Configurations");
         btnConfigMenu.setPadding(insetPadding);
 
-        Button btnBestScoreMenu = FactoryLayout.createButton("Best Scores", e ->{ primaryStage.setScene(SceneScore);});
+        btnBestScoreMenu = FactoryLayout.createButton("Best Scores");
         btnBestScoreMenu.setPadding(insetPadding);
 
         vBxMenu = FactoryLayout.createVBOX(btnGameMenu,btnConfigMenu,btnBestScoreMenu);
@@ -60,5 +54,17 @@ public class VueMenu {
 
     public VBox getvBxMenu() {
         return vBxMenu;
+    }
+
+    public Button getBtnGameMenu() {
+        return btnGameMenu;
+    }
+
+    public Button getBtnConfigMenu() {
+        return btnConfigMenu;
+    }
+
+    public Button getBtnBestScoreMenu() {
+        return btnBestScoreMenu;
     }
 }

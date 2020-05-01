@@ -22,7 +22,7 @@ public class Main extends Application {
         Main.primaryStage = primaryStage;
         primaryStage.setTitle("JAVA PROJECT MEMORY - SAMI KHALIFA");
 
-        Controller c = new Controller(Theme.Dark,new Player("UNDEF",Difficulty.EASY));
+        Controller c = new Controller(Theme.Dark,new Player("UNDEFINED_NAME",Difficulty.EASY));
         c.ShowAll();
 
     }

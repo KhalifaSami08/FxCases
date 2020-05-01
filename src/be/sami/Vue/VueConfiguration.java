@@ -1,33 +1,25 @@
 package be.sami.Vue;
 
 import be.sami.Controller;
-import be.sami.FactoryLayout;
-import be.sami.Model.Player;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import be.sami.Model.Difficulty;
 import be.sami.Model.Theme;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
 public class VueConfiguration {
 
-    private static final Stage primaryStage = Controller.primaryStage;
-    private static final Player player = Controller.player;
-
-    public static VBox vBxConfig,vBoxConfigHelp;
-    public static Button bThemeDark,bThemeGreen,bThemeRed;
-    public static Button bEasy,bMedium,bHard;
-    public static TextField tXfEditName;
-
-    private Scene sceneConfig; //export to Controller
+    //export to Controller
+    private Scene sceneConfig;
+    private VBox vBxConfig,vBoxConfigHelp;
+    private Button bThemeDark,bThemeGreen,bThemeRed;
+    private Button bEasy,bMedium,bHard;
+    private TextField tXfEditName;
+    private Label lDiff;
+    private Button bOk;
 
     public VueConfiguration(){
         initConfig();
@@ -39,41 +31,41 @@ public class VueConfiguration {
 
         Label lEditName = FactoryLayout.createLabel("Edit name : ");
 
-        tXfEditName = new TextField("New Player");
+        tXfEditName = new TextField(Controller.getPlayer().getName());
         tXfEditName.setAlignment(Pos.CENTER);
         tXfEditName.setPadding(insetsHbox);
 
         Label lBackground = FactoryLayout.createLabel("Chose Theme : ");
 
-        bThemeDark = FactoryLayout.createButton("Default",new Controller.ButtonConfigHandlerColor());
+        bThemeDark = FactoryLayout.createButton("Default");
         FactoryLayout.ChangeBackground(bThemeDark, Theme.Dark);
 
-        bThemeGreen = FactoryLayout.createButton("Green",new Controller.ButtonConfigHandlerColor());
+        bThemeGreen = FactoryLayout.createButton("Green");
         FactoryLayout.ChangeBackground(bThemeGreen,Theme.Green);
 
-        bThemeRed = FactoryLayout.createButton("Red",new Controller.ButtonConfigHandlerColor());
+        bThemeRed = FactoryLayout.createButton("Red");
         FactoryLayout.ChangeBackground(bThemeRed,Theme.Red);
 
         HBox h1 = FactoryLayout.createHBOX(bThemeDark,bThemeGreen,bThemeRed);
             h1.setBackground(FactoryLayout.firstBack);
             h1.setPadding(insetsHbox);
 
-        Label lDiff = FactoryLayout.createLabel("Chose Difficulty (Default is Medium): ");
+        lDiff = FactoryLayout.createLabel("Chose Difficulty (Default is Easy): ");
 
-        bEasy = FactoryLayout.createButton("Easy",new Controller.ButtonConfigHandlerDifficulty());
-        FactoryLayout.ChangeTextFillAndLabel(bEasy,lDiff, Color.DARKGREEN);
+        bEasy = FactoryLayout.createButton("Easy");
+        FactoryLayout.ChangeTextFillAndLabel(bEasy, Color.DARKGREEN);
 
-        bMedium = FactoryLayout.createButton("Medium",new Controller.ButtonConfigHandlerDifficulty());
-        FactoryLayout.ChangeTextFillAndLabel(bMedium,lDiff,Color.DARKBLUE);
+        bMedium = FactoryLayout.createButton("Medium");
+        FactoryLayout.ChangeTextFillAndLabel(bMedium,Color.DARKBLUE);
 
-        bHard = FactoryLayout.createButton("Hard",new Controller.ButtonConfigHandlerDifficulty());
-        FactoryLayout.ChangeTextFillAndLabel(bHard,lDiff,Color.DARKRED);
+        bHard = FactoryLayout.createButton("Hard");
+        FactoryLayout.ChangeTextFillAndLabel(bHard,Color.DARKRED);
 
         HBox h2 = FactoryLayout.createHBOX(bEasy,bMedium,bHard);
             h2.setBackground(Theme.Dark);
             h2.setPadding(insetsHbox);
 
-        Button bOk = FactoryLayout.createButton("OK", new Controller.ButtonConfigOk());
+        bOk = FactoryLayout.createButton("OK");
 
         Button bReturn = FactoryLayout.generateButtonReturnHome();
         HBox h3 = FactoryLayout.createHBOX(bOk,bReturn);
@@ -88,6 +80,47 @@ public class VueConfiguration {
         return sceneConfig;
     }
 
+    public VBox getvBxConfig() {
+        return vBxConfig;
+    }
 
+    public VBox getvBoxConfigHelp() {
+        return vBoxConfigHelp;
+    }
 
+    public Button getbThemeDark() {
+        return bThemeDark;
+    }
+
+    public Button getbThemeGreen() {
+        return bThemeGreen;
+    }
+
+    public Button getbThemeRed() {
+        return bThemeRed;
+    }
+
+    public Button getbEasy() {
+        return bEasy;
+    }
+
+    public Button getbMedium() {
+        return bMedium;
+    }
+
+    public Button getbHard() {
+        return bHard;
+    }
+
+    public TextField gettXfEditName() {
+        return tXfEditName;
+    }
+
+    public Label getlDiff() {
+        return lDiff;
+    }
+
+    public Button getbOk() {
+        return bOk;
+    }
 }

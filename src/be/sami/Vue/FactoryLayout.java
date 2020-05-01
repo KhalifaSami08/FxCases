@@ -1,5 +1,6 @@
-package be.sami;
+package be.sami.Vue;
 
+import be.sami.Controller;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -22,7 +23,7 @@ public class FactoryLayout {
     public static final Background secondBack = new Background(new BackgroundFill(secondBackGroundColor,null,null));
     public static final int boxPadding = 25;
 
-    public static Button createButton(String text, EventHandler<ActionEvent> actionEventHandler){
+    public static Button createButton(String text){
         Button b = new Button(text);
         b.setBackground(firstBack);
         b.setTextFill(secondBackGroundColor);
@@ -34,12 +35,14 @@ public class FactoryLayout {
             b.setBackground(firstBack);
             b.setTextFill(secondBackGroundColor);
         });
-        b.setOnAction(actionEventHandler);
         return b;
     }
 
     public static Button generateButtonReturnHome(){
-        return FactoryLayout.createButton("Return Home", e -> Controller.primaryStage.setScene(Controller.SceneMenu));
+        Button button = FactoryLayout.createButton("Return Home");
+            button.setOnAction(e -> Controller.primaryStage.setScene(Controller.getMenuScene()));
+
+        return button;
     }
 
     //Only for Config - BackgroundButton
@@ -52,18 +55,16 @@ public class FactoryLayout {
     }
 
     //Only for Config - difficultyButton
-    public static void ChangeTextFillAndLabel(Button button,Label label,Paint paint){
+    public static void ChangeTextFillAndLabel(Button button,Paint paint){
         button.setTextFill(paint);
         button.setOnMouseExited(e -> {
             button.setTextFill(paint);
             button.setBackground(firstBack);
         });
-        button.setOnAction(e -> {label.setText("Difficulty : "+button.getText());});
     }
 
     public static Label createLabel(String text){
         Label l= new Label(text);
-        //l.setAlignment(Pos.CENTER);
         l.setTextFill(Color.WHEAT);
         return l;
     }
@@ -71,7 +72,7 @@ public class FactoryLayout {
     public static VBox createVBOX(Node... nodes){
         VBox vBox = new VBox(boxPadding,nodes);
             vBox.setAlignment(Pos.CENTER); //Default
-            vBox.setBackground(Controller.backGroundColor);
+            vBox.setBackground(Controller.getBackGroundColor());
 
         return vBox;
     }

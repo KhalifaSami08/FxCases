@@ -1,11 +1,13 @@
 package be.sami.Model;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AllPlayers {
+
     private static final ArrayList<Player> allPlayers = new ArrayList<>();
 
     public AllPlayers(){
@@ -36,10 +38,30 @@ public class AllPlayers {
                 String name = scan.next();
                 Difficulty diff = Difficulty.CastDifficulty(scan.next());
                 int score = Integer.parseInt(scan.next());
-                allPlayers.add(new Player(name,diff,score));
+                int seconds = Integer.parseInt(scan.next());
+
+                allPlayers.add(new Player(name,diff,score,seconds));
             }
             scan.close();
             read.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void WriteFile(Player player){
+
+        allPlayers.add(player);
+        try {
+            FileWriter fileWriter = new FileWriter("src\\be\\sami\\Model\\Players.csv");
+
+            for (Player player1:
+                    allPlayers ) {
+                fileWriter.write(player1.getName()+";"+player1.getDifficulty()+";"+player1.getScore()+";"+player1.getSeconds()+";");
+            }
+            System.out.println("File Writted ! ");
+            fileWriter.close();
 
         } catch (IOException e) {
             e.printStackTrace();

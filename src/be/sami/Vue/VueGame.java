@@ -1,116 +1,140 @@
 package be.sami.Vue;
 
 import be.sami.Controller;
-import be.sami.FactoryLayout;
-import be.sami.Model.Difficulty;
-import be.sami.Model.Player;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import be.sami.Model.*;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
-import javax.swing.text.Position;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class VueGame {
 
-    private static final Player player = Controller.player;
+    private final GameBoard gameBoard;
+    private final Label lName,lTimer;
+    private Label lScore;
+    private Button bReturn;
 
-    public static Button[][] btn;
-    public static boolean[][] isOK; // if dual set is ok, not check anymore
-    public static Button firstButtonClick;
-    public static Background backgroundOnClick;
-    public static Label lScore;
-
-    int gridNb_Rows;
-    int gridNb_Col;
-
-    Label lName;
-    GridPane gridPane;
-    Button bReturn;
-
-    Position pos;
+    private Timer timer;
+    private TimerTask timerTask;
+    private int timerSeconds;
 
     private VBox vBxGame;
     private Scene SceneGame;
 
-    public VueGame(){
+    public VueGame() {
 
-        gridNb_Rows = Difficulty.CastDifficultyString(player.getDifficulty());
-        gridNb_Col = Difficulty.CastDifficultyString(player.getDifficulty());
-        backgroundOnClick = new Background(new BackgroundFill(Color.rgb(180, 200, 245), null, null));
-        btn = new Button[gridNb_Rows][gridNb_Col];
-        isOK = new boolean[gridNb_Rows][gridNb_Col];
-        firstButtonClick = null;
+        timerSeconds = 0;
+        timer = null;
+        timerTask = null;
+
+        lName = FactoryLayout.createLabel("Hello " + Controller.getPlayer().getName() + " ! ");
+        lTimer = FactoryLayout.createLabel("Time : "+timerSeconds);
+        gameBoard = new GameBoard();
 
         initGame();
+        initTimer();
+        activeCheatCode();
+    }
+
+    private int attributeVisibleButtonsTime() {
+        int buttonsGameVisible;
+        switch (Controller.getPlayer().getDifficulty()) {
+            case EASY:
+                buttonsGameVisible = 10;
+                break;
+            case MEDIUM:
+                buttonsGameVisible = 15;
+                break;
+            case HARD:
+                buttonsGameVisible = 20;
+                break;
+            default:
+                buttonsGameVisible = 10000;
+        }
+        return buttonsGameVisible;
+    }
+
+    private void initTimer() {
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater( ()-> { lTimer.setText("Time : "+timerSeconds); });
+
+                for (Boxes allbox : gameBoard.getAllboxes()) {
+
+                    Button b = allbox.getButton();
+
+                    if (timerSeconds < attributeVisibleButtonsTime()) {
+                        allbox.setOk(true);
+                        b.setTextFill(FactoryLayout.firstBackGroundColor);
+
+                        b.setOnMouseEntered(e -> {
+                            b.setBackground(FactoryLayout.firstBack);
+                            b.setTextFill(FactoryLayout.secondBackGroundColor);
+                        });
+
+                        b.setOnMouseExited( e -> {
+                            b.setBackground(FactoryLayout.secondBack);
+                            b.setTextFill(FactoryLayout.firstBackGroundColor);
+                        });
+
+                    } else if (attributeVisibleButtonsTime() == timerSeconds) {
+                        allbox.setOk(false);
+                        b.setTextFill(FactoryLayout.secondBackGroundColor);
+
+                        b.setOnMouseEntered(e -> {
+                            b.setBackground(FactoryLayout.firstBack);
+                            b.setTextFill(FactoryLayout.firstBackGroundColor);
+                        });
+
+                        b.setOnMouseExited( e -> {
+                            b.setBackground(FactoryLayout.secondBack);
+                            b.setTextFill(FactoryLayout.secondBackGroundColor);
+                        });
+                    }
+                }
+                timerSeconds++;
+            }
+        };
+        getTimer().schedule(getTimerTask(),1000,1000);
     }
 
     private void initGame() {
-        lName = FactoryLayout.createLabel("Hello " + player.getName() + " ! ");
 
-        gridPane = new GridPane();
-        gridPane.setMinSize(400, 300);
-        gridPane.setAlignment(Pos.CENTER);
-        gridPane.setHgap(1);
-        gridPane.setVgap(1);
-
-
-        for (int i = 0; i < gridNb_Rows; i++) {
-
-            for (int j = 0; j < gridNb_Col; j++) {
-
-                Button b = new Button("");
-                b.setPadding(new Insets(15));
-                b.setBackground(FactoryLayout.secondBack);
-                b.setTextFill(FactoryLayout.secondBackGroundColor);
-                b.setOnMouseEntered(e -> {
-                    b.setBackground(FactoryLayout.firstBack);
-                });
-                b.setOnMouseExited(e -> {
-                    b.setBackground(FactoryLayout.secondBack);
-                });
-
-                btn[i][j] = b;
-                b.setOnAction(new Controller.ButtonLauchGameHandler(b, i, j));
-                gridPane.add(b, j, i);
-            }
-        }
-
-        int cpt = 0;
-        for (int i = 0; i < gridNb_Rows; i++) {
-            for (int j = 0; j < gridNb_Col; j++) {
-                int nbr = ((cpt++) % ((gridNb_Rows * gridNb_Col / 2)));
-                btn[i][j].setText("b" + nbr);
-                isOK[i][j] = false;
-            }
-        }
-
-        int nb_sort = (int) (Math.random() * (1000 - 500) + 500);
-        for (int i = 0; i < nb_sort; i++) {
-
-            int a = (int) (Math.random() * gridNb_Rows);
-            int b = (int) (Math.random() * gridNb_Col);
-            String temp;
-
-            temp = btn[a][b].getText();
-            btn[a][b].setText(btn[b][a].getText());
-            btn[b][a].setText(temp);
-        }
-
-        lScore = FactoryLayout.createLabel("Score : ");
+        lScore = FactoryLayout.createLabel("Score : " + 0);
         bReturn = FactoryLayout.generateButtonReturnHome();
 
-        vBxGame = FactoryLayout.createVBOX(lName, gridPane, lScore, bReturn);
-        SceneGame = new Scene(vBxGame, 500, 650);
+        vBxGame = FactoryLayout.createVBOX(lName, lTimer, gameBoard.getGridPane(), lScore, bReturn);
+        SceneGame = new Scene(vBxGame, 600, 700);
+    }
+
+    private void activeCheatCode(){
+
+        lName.setOnMouseClicked(e ->{
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setContentText("Cheat Code Activated ! ");
+            a.showAndWait();
+            for (Boxes boxes :
+                    gameBoard.getAllboxes()) {
+
+                Button b = boxes.getButton();
+
+                b.setOnMouseEntered(ev -> {
+                    b.setBackground(FactoryLayout.firstBack);
+//                  b.setTextFill(FactoryLayout.secondBackGroundColor);
+                });
+                b.setOnMouseExited(ev -> {
+                    b.setBackground(FactoryLayout.secondBack);
+                });
+            }
+        });
 
     }
 
@@ -122,6 +146,28 @@ public class VueGame {
         return SceneGame;
     }
 
+    public Label getlScore() {
+        return lScore;
+    }
 
+    public GameBoard getGameBoard() {
+        return gameBoard;
+    }
+
+    public Timer getTimer() {
+        return timer;
+    }
+
+    public TimerTask getTimerTask() {
+        return timerTask;
+    }
+
+    public int getTimerSeconds() {
+        return timerSeconds;
+    }
+
+    public Button getbReturn() {
+        return bReturn;
+    }
 }
 

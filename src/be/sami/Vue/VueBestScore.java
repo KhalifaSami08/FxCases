@@ -1,6 +1,5 @@
 package be.sami.Vue;
 
-import be.sami.FactoryLayout;
 import be.sami.Model.AllPlayers;
 import be.sami.Model.Difficulty;
 import be.sami.Model.Player;
@@ -29,16 +28,19 @@ public class VueBestScore {
         TableView tableView = new TableView<>();
         tableView.setPlaceholder(new Label("No rows to display"));
 
-        TableColumn<String,Player> tableColumn1 = new TableColumn<>("Name");
+        TableColumn<String,Player> tableColumn1 = new TableColumn<>("Name : ");
         tableColumn1.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        TableColumn<Difficulty,Player> tableColumn2 = new TableColumn<>("Difficulty");
+        TableColumn<Difficulty,Player> tableColumn2 = new TableColumn<>("Difficulty : ");
         tableColumn2.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
 
-        TableColumn<Integer,Player> tableColumn3 = new TableColumn<>("Victory");
+        TableColumn<Integer,Player> tableColumn3 = new TableColumn<>("Score : ");
         tableColumn3.setCellValueFactory(new PropertyValueFactory<>("score"));
 
-        tableView.getColumns().addAll(tableColumn1,tableColumn2,tableColumn3);
+        TableColumn<Integer,Player> tableColumn4 = new TableColumn<>("Seconds : ");
+        tableColumn4.setCellValueFactory(new PropertyValueFactory<>("seconds"));
+
+        tableView.getColumns().addAll(tableColumn1,tableColumn2,tableColumn3,tableColumn4);
 
         for (Player p :
                 myPlayers) {
@@ -49,7 +51,7 @@ public class VueBestScore {
         Button bReturn = FactoryLayout.generateButtonReturnHome();
 
         vBxScore = FactoryLayout.createVBOX(vBox,bReturn);
-        SceneScore = new Scene(vBxScore,250,480);
+        SceneScore = new Scene(vBxScore,270,500);
 
     }
 
