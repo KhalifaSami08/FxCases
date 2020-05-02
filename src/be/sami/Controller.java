@@ -2,6 +2,7 @@ package be.sami;
 
 import be.sami.Model.*;
 import be.sami.Vue.*;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -16,28 +17,26 @@ public class Controller {
     public static final Stage primaryStage = Main.primaryStage; //Scenes
     private static Player player;
     private static Background backGroundColor;
-    private static Boxes firstButtonClick;
+//    private static Boxes firstButtonClick;
 
     private VueGame game;
     private final VueConfiguration configuration;
     private VueBestScore bestScore;
-    private final VueMenu menu;
+    private VueMenu menu;
+
     private static Scene menuScene;
 
     public Controller(Background backGroundColor, Player player) {
         Controller.backGroundColor = backGroundColor;
         Controller.player = player;
 
-        game = new VueGame();
-        game.getGameBoard().addObserver(game);
-
-        configuration = new VueConfiguration();
-        bestScore = new VueBestScore();
         menu = new VueMenu();
         menuScene = menu.getSceneMenu();
+        configuration = new VueConfiguration();
+        bestScore = new VueBestScore();
+
+        constructGame();
         setOnActionButtons();
-        manageTimerGame();
-        activeCheatCode();
     }
 
     public void ShowAll() {
@@ -50,6 +49,7 @@ public class Controller {
         Controller.primaryStage.setOnCloseRequest(e -> {
             System.out.println("Stage is closing");
             game.getTimer().cancel();
+            System.exit(0);
         });
         game.getbReturn().setOnAction(e -> {
             game.getTimer().purge();
@@ -57,9 +57,18 @@ public class Controller {
         });
     }
 
+    private void constructGame(){
+        game = new VueGame();
+        game.getGameBoard().addObserver(game);
+        setonActionGameButtons();
+        manageTimerGame();
+        activeCheatCode();
+    }
+
     private void setOnActionButtons() {
 
         menu.getBtnGameMenu().setOnAction(e -> {
+            constructGame();
             primaryStage.setScene(getSceneGame());
         });
         menu.getBtnConfigMenu().setOnAction(e -> {
@@ -78,12 +87,10 @@ public class Controller {
         configuration.getbHard().setOnAction(new ButtonConfigHandlerDifficulty());
 
         configuration.getbOk().setOnAction(new ButtonConfigOk());
-
-        setonActionGameButtons();
     }
 
     private void setonActionGameButtons() {
-        ArrayList<Boxes> allButtons = game.getGameBoard().getAllboxes();
+        ArrayList<Boxes> allButtons = game.getGameBoard().getAllMyBoxes();
         for (Boxes b :
                 allButtons) {
             b.getButton().setOnAction(new ButtonLauchGameHandler(b));
@@ -97,7 +104,7 @@ public class Controller {
             a.setContentText("Cheat Code Activated ! ");
             a.showAndWait();
             for (Boxes boxes :
-                    game.getGameBoard().getAllboxes()) {
+                    game.getGameBoard().getAllMyBoxes()) {
 
                 Button b = boxes.getButton();
                 b.setOnMouseEntered(ev -> {
@@ -108,6 +115,26 @@ public class Controller {
                 });
             }
             player.setCheatActivated(true);
+        });
+
+        game.getlName().setOnMouseEntered(e ->{
+            game.getlName().setText("Click for CheatCode ! ");
+            for (Boxes boxes :
+                    game.getGameBoard().getAllMyBoxes()) {
+
+                Button b = boxes.getButton();
+                b.setTextFill(FactoryLayout.firstBackGroundColor);
+            }
+        });
+
+        game.getlName().setOnMouseExited(e ->{
+            game.getlName().setText("Hello : "+player.getName());
+            for (Boxes boxes :
+                    game.getGameBoard().getAllMyBoxes()) {
+
+                Button b = boxes.getButton();
+                b.setTextFill(FactoryLayout.secondBackGroundColor);
+            }
         });
     }
 
@@ -120,7 +147,7 @@ public class Controller {
         public ButtonLauchGameHandler(Boxes b) {
             this.boxes = b;
             this.b = b.getButton();
-            firstButtonClick = game.getGameBoard().getFirstButtonClick();
+//            firstButtonClick = GameBoardgetFirstButtonClick();
         }
 
         @Override
@@ -137,27 +164,27 @@ public class Controller {
             } else {
 
                 //first click
-                if (firstButtonClick == null) {
+                if (GameBoard.getFirstButtonClick() == null) {
 
-                    firstButtonClick = boxes;
-                    firstButtonClick.setOk(true);
+                    GameBoard.setFirstButtonClick(boxes);
+                    GameBoard.getFirstButtonClick().setOk(true);
                     game.getGameBoard().changeButtonBackcolorOnClick(b);
 
                 //second click
                 } else {
 
                     //match
-                    if (firstButtonClick.getButton().getText().equalsIgnoreCase(b.getText())) {
+                    if (GameBoard.getFirstButtonClick().getButton().getText().equalsIgnoreCase(b.getText())) {
 
-                        game.getGameBoard().validateAndOk(firstButtonClick,boxes, player);
+                        game.getGameBoard().validateAndOk(boxes, player);
 
                     //not match
                     } else {
 
-                        game.getGameBoard().validateNotOk(firstButtonClick,boxes, player);
+                        game.getGameBoard().validateNotOk(boxes, player);
 
                     }
-                    firstButtonClick = null;
+                    GameBoard.setFirstButtonClick(null);
                 }
                 //END GAME
                 if (game.getGameBoard().checkEndGame()) {

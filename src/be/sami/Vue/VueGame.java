@@ -17,7 +17,7 @@ import java.util.TimerTask;
 public class VueGame implements Observer {
 
     private final GameBoard gameBoard;
-    private final Label lName,lTimer;
+    private final Label lName, lTimer;
     private Label lScore;
     private Button bReturn;
 
@@ -28,14 +28,14 @@ public class VueGame implements Observer {
     private VBox vBxGame;
     private Scene SceneGame;
 
-    public VueGame(){
+    public VueGame() {
 
         timerSeconds = 0;
         timer = null;
         timerTask = null;
 
         lName = FactoryLayout.createLabel("Hello " + Controller.getPlayer().getName() + " ! ");
-        lTimer = FactoryLayout.createLabel("Time : "+timerSeconds);
+        lTimer = FactoryLayout.createLabel("Time : " + timerSeconds);
         gameBoard = new GameBoard();
 
         initGame();
@@ -65,45 +65,53 @@ public class VueGame implements Observer {
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                Platform.runLater( ()-> { lTimer.setText("Time : "+timerSeconds); });
 
-                for (Boxes allbox : gameBoard.getAllboxes()) {
+                for (Boxes allbox : gameBoard.getAllMyBoxes()) {
 
                     Button b = allbox.getButton();
+                    Platform.runLater(() -> {
+                        if (timerSeconds < attributeVisibleButtonsTime()) {
+                            allbox.setOk(true);
 
-                    if (timerSeconds < attributeVisibleButtonsTime()) {
-                        allbox.setOk(true);
-                        b.setTextFill(FactoryLayout.firstBackGroundColor);
+                            lTimer.setText("Time Left Before Start Game : " + (attributeVisibleButtonsTime() - timerSeconds));
 
-                        b.setOnMouseEntered(e -> {
-                            b.setBackground(FactoryLayout.firstBack);
-                            b.setTextFill(FactoryLayout.secondBackGroundColor);
-                        });
-
-                        b.setOnMouseExited( e -> {
-                            b.setBackground(FactoryLayout.secondBack);
                             b.setTextFill(FactoryLayout.firstBackGroundColor);
-                        });
 
-                    } else if (attributeVisibleButtonsTime() == timerSeconds) {
-                        allbox.setOk(false);
-                        b.setTextFill(FactoryLayout.secondBackGroundColor);
+                            b.setOnMouseEntered(e -> {
+                                b.setBackground(FactoryLayout.firstBack);
+                                b.setTextFill(FactoryLayout.secondBackGroundColor);
+                            });
 
-                        b.setOnMouseEntered(e -> {
-                            b.setBackground(FactoryLayout.firstBack);
-                            b.setTextFill(FactoryLayout.firstBackGroundColor);
-                        });
+                            b.setOnMouseExited(e -> {
+                                b.setBackground(FactoryLayout.secondBack);
+                                b.setTextFill(FactoryLayout.firstBackGroundColor);
+                            });
 
-                        b.setOnMouseExited( e -> {
-                            b.setBackground(FactoryLayout.secondBack);
+                        } else if (attributeVisibleButtonsTime() == timerSeconds) {
+                            allbox.setOk(false);
+                            lTimer.setText("Time : " + timerSeconds);
                             b.setTextFill(FactoryLayout.secondBackGroundColor);
-                        });
-                    }
+
+                            b.setOnMouseEntered(e -> {
+                                b.setBackground(FactoryLayout.firstBack);
+                                b.setTextFill(FactoryLayout.firstBackGroundColor);
+                            });
+
+                            b.setOnMouseExited(e -> {
+                                b.setBackground(FactoryLayout.secondBack);
+                                b.setTextFill(FactoryLayout.secondBackGroundColor);
+                            });
+                        }
+                        else{
+                            lTimer.setText("Time : " +timerSeconds);
+                        }
+                    });
+
                 }
                 timerSeconds++;
             }
         };
-        getTimer().schedule(getTimerTask(),1000,1000);
+        getTimer().schedule(getTimerTask(), 1000, 1000);
     }
 
     private void initGame() {
@@ -148,24 +156,23 @@ public class VueGame implements Observer {
     }
 
     @Override
-    public void modify(Object obj,int param) {
+    public void modify(Object obj, int param) {
 
-        if(obj instanceof Player){
+        if (obj instanceof Player) {
             Player player = (Player) obj;
             lScore.setText("Score : " + player.getScore());
-        }else{
+        } else {
 
             ArrayList<Boxes> boxesOk = (ArrayList<Boxes>) obj;
 
-            if(param == 1){
+            if (param == 1) {
                 boxesOk.get(0).setOk(true);
                 boxesOk.get(1).setOk(true);
                 gameBoard.changeButtonBackcolorOnClick(boxesOk.get(1).getButton());
-            }
-            else if (param == 2){
+            } else if (param == 2) {
                 boxesOk.get(0).setOk(false);
                 boxesOk.get(1).setOk(false);
-                gameBoard.resetButtonifClickNotMatch(boxesOk.get(0).getButton(),boxesOk.get(1).getButton());
+                gameBoard.resetButtonifClickNotMatch(boxesOk.get(0).getButton(), boxesOk.get(1).getButton());
             }
 
             System.out.println("Modifying GameBoard");

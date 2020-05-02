@@ -19,12 +19,12 @@ public class GameBoard implements Observable {
     private final int gridNb_Rows_Col = Difficulty.CastDifficultyString(Controller.getPlayer().getDifficulty());
     private final ArrayList<Observer> myObservers;
 
-    private final ArrayList<Boxes> allboxes;
+    private final ArrayList<Boxes> allMyBoxes;
     private GridPane gridPane;
 
     public GameBoard() {
 
-        allboxes = new ArrayList<>();
+        allMyBoxes = new ArrayList<>();
         myObservers = new ArrayList<>();
         firstButtonClick = null;
         createGridPane();
@@ -41,9 +41,9 @@ public class GameBoard implements Observable {
             int b = (int) (Math.random() * (gridNb_Rows_Col*gridNb_Rows_Col));
             String temp;
 
-            temp = allboxes.get(a).getButton().getText();
-            allboxes.get(a).getButton().setText(allboxes.get(b).getButton().getText());
-            allboxes.get(b).getButton().setText(temp);
+            temp = allMyBoxes.get(a).getButton().getText();
+            allMyBoxes.get(a).getButton().setText(allMyBoxes.get(b).getButton().getText());
+            allMyBoxes.get(b).getButton().setText(temp);
 
         }
     }
@@ -51,7 +51,7 @@ public class GameBoard implements Observable {
     private void initButtons() {
         int cpt = 0;
         for (Boxes b :
-                allboxes) {
+                allMyBoxes) {
             int nbr = ((cpt++) % ((gridNb_Rows_Col * gridNb_Rows_Col / 2)));
             b.getButton().setText("b" + nbr);
         }
@@ -66,7 +66,7 @@ public class GameBoard implements Observable {
                 Boxes b = new Boxes(new Position<>(i, j));
                 b.getButton().setMinSize(gridPane.getMaxHeight() / gridNb_Rows_Col,gridPane.getMaxWidth() / gridNb_Rows_Col);
 
-                allboxes.add(b);
+                allMyBoxes.add(b);
                 gridPane.add(b.getButton(), j, i);
             }
         }
@@ -113,14 +113,14 @@ public class GameBoard implements Observable {
         return boxesOk;
     }
 
-    public void validateAndOk(Boxes firstButtonClick, Boxes b, Player player){
+    public void validateAndOk(Boxes b, Player player){
 
         notifyObserver(getArraylistCoupleButtons(firstButtonClick,b) , 1);
         player.setScore(player.getScore() + getGridNb_Rows_Col()/2);
         notifyObserver(player,0);
     }
 
-    public void validateNotOk(Boxes firstButtonClick,Boxes b,Player player){
+    public void validateNotOk(Boxes b,Player player){
 
         notifyObserver(getArraylistCoupleButtons(firstButtonClick,b) , 2);
         player.setScore(player.getScore() - 1);
@@ -131,12 +131,16 @@ public class GameBoard implements Observable {
         return gridPane;
     }
 
-    public ArrayList<Boxes> getAllboxes() {
-        return allboxes;
+    public ArrayList<Boxes> getAllMyBoxes() {
+        return allMyBoxes;
     }
 
     public static Boxes getFirstButtonClick() {
         return firstButtonClick;
+    }
+
+    public static void setFirstButtonClick(Boxes firstButtonClick) {
+        GameBoard.firstButtonClick = firstButtonClick;
     }
 
     public int getGridNb_Rows_Col() {
@@ -145,7 +149,7 @@ public class GameBoard implements Observable {
 
     public boolean checkEndGame() {
         for (Boxes b :
-                allboxes) {
+                allMyBoxes) {
             if(!b.isOk())
                 return false;
         }
