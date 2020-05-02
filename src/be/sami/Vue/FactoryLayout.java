@@ -1,8 +1,6 @@
 package be.sami.Vue;
 
 import be.sami.Controller;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
