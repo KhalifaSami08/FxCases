@@ -39,8 +39,8 @@ public class AllPlayers {
                 Difficulty diff = Difficulty.CastDifficulty(scan.next());
                 int score = Integer.parseInt(scan.next());
                 int seconds = Integer.parseInt(scan.next());
-
-                allPlayers.add(new Player(name,diff,score,seconds));
+                boolean isCheat = Boolean.parseBoolean(scan.next());
+                allPlayers.add(new Player(name,diff,score,seconds,isCheat));
             }
             scan.close();
             read.close();
@@ -58,7 +58,7 @@ public class AllPlayers {
 
             for (Player player1:
                     allPlayers ) {
-                fileWriter.write(player1.getName()+";"+player1.getDifficulty()+";"+player1.getScore()+";"+player1.getSeconds()+";");
+                fileWriter.write(player1.getName()+";"+player1.getDifficulty()+";"+player1.getScore()+";"+player1.getSeconds()+";"+player1.isCheatActivated()+";");
             }
             System.out.println("File Writted ! ");
             fileWriter.close();

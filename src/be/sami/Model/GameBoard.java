@@ -9,27 +9,23 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
-public class GameBoard implements PropertyChangeListener {
+public class GameBoard implements Observable {
 
     public static final Background backgroundOnClick = new Background(new BackgroundFill(Color.rgb(180, 200, 245), null, null));
-    private final int gridNb_Rows_Col = Difficulty.CastDifficultyString(Controller.getPlayer().getDifficulty());
-
     private static Boxes firstButtonClick;
+
+    private final int gridNb_Rows_Col = Difficulty.CastDifficultyString(Controller.getPlayer().getDifficulty());
+    private final ArrayList<Observer> myObservers;
+
     private final ArrayList<Boxes> allboxes;
     private GridPane gridPane;
 
-
-//    private PropertyChangeSupport propertyChangeSupport;
-//    private ArrayList<Boxes> validateBoxes;
-
     public GameBoard() {
-//        this.propertyChangeSupport = new PropertyChangeSupport(this);
-//        this.validateBoxes = new ArrayList<>();
+
         allboxes = new ArrayList<>();
+        myObservers = new ArrayList<>();
         firstButtonClick = null;
         createGridPane();
         createButtons();
@@ -61,7 +57,6 @@ public class GameBoard implements PropertyChangeListener {
         }
     }
 
-
     private void createButtons() {
 
         for (int i = 0; i < gridNb_Rows_Col; i++) {
@@ -75,7 +70,6 @@ public class GameBoard implements PropertyChangeListener {
                 gridPane.add(b.getButton(), j, i);
             }
         }
-
     }
 
     private void createGridPane() {
@@ -87,7 +81,7 @@ public class GameBoard implements PropertyChangeListener {
         gridPane.setVgap(1);
     }
 
-    public static void changeButtonBackcolorOnClick(Button button) {
+    public void changeButtonBackcolorOnClick(Button button) {
         button.setBackground(backgroundOnClick);
         button.setTextFill(FactoryLayout.firstBackGroundColor);
         button.setOnMouseExited(e -> {
@@ -95,7 +89,7 @@ public class GameBoard implements PropertyChangeListener {
         });
     }
 
-    public static void resetButtonifClickNotMatch(Button first, Button b) {
+    public void resetButtonifClickNotMatch(Button first, Button b) {
         first.setBackground(FactoryLayout.secondBack);
         first.setTextFill(FactoryLayout.secondBackGroundColor);
 
@@ -110,6 +104,27 @@ public class GameBoard implements PropertyChangeListener {
         });
         b.setBackground(FactoryLayout.secondBack);
         b.setTextFill(FactoryLayout.secondBackGroundColor);
+    }
+
+    private ArrayList<Boxes> getArraylistCoupleButtons(Boxes firstButtonClick, Boxes b){
+        ArrayList<Boxes> boxesOk = new ArrayList<>();
+        boxesOk.add(firstButtonClick);
+        boxesOk.add(b);
+        return boxesOk;
+    }
+
+    public void validateAndOk(Boxes firstButtonClick, Boxes b, Player player){
+
+        notifyObserver(getArraylistCoupleButtons(firstButtonClick,b) , 1);
+        player.setScore(player.getScore() + getGridNb_Rows_Col()/2);
+        notifyObserver(player,0);
+    }
+
+    public void validateNotOk(Boxes firstButtonClick,Boxes b,Player player){
+
+        notifyObserver(getArraylistCoupleButtons(firstButtonClick,b) , 2);
+        player.setScore(player.getScore() - 1);
+        notifyObserver(player,0);
     }
 
     public GridPane getGridPane() {
@@ -129,7 +144,6 @@ public class GameBoard implements PropertyChangeListener {
     }
 
     public boolean checkEndGame() {
-
         for (Boxes b :
                 allboxes) {
             if(!b.isOk())
@@ -139,20 +153,14 @@ public class GameBoard implements PropertyChangeListener {
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-     /*   if (evt.getPropertyName() == "newBoxesValidated") {
-            validateBoxes.add((Boxes) evt.getNewValue());
-            notifyBillBoards(validateBoxes);
-        }*/
-    }
-    /*public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        propertyChangeSupport.addPropertyChangeListener(propertyChangeListener);
-    }
-    public void removePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        propertyChangeSupport.removePropertyChangeListener(propertyChangeListener);
+    public void addObserver(Observer o) {
+        myObservers.add(o);
     }
 
-    public void notifyBillBoards(ArrayList<Boxes> boxesChecked) {
-        propertyChangeSupport.firePropertyChange("updatedListBoxesChecked", null, boxesChecked);
-    }*/
+    @Override
+    public void notifyObserver(Object object,int param) {
+        for (Observer observer: myObservers) {
+            observer.modify(object,param);
+        }
+    }
 }

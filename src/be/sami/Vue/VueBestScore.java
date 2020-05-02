@@ -40,7 +40,10 @@ public class VueBestScore {
         TableColumn<Integer,Player> tableColumn4 = new TableColumn<>("Seconds : ");
         tableColumn4.setCellValueFactory(new PropertyValueFactory<>("seconds"));
 
-        tableView.getColumns().addAll(tableColumn1,tableColumn2,tableColumn3,tableColumn4);
+        TableColumn<Boolean,Player> tableColumn5 = new TableColumn<>("Cheat Code Active : ");
+        tableColumn5.setCellValueFactory(new PropertyValueFactory<>("cheatActivated"));
+
+        tableView.getColumns().addAll(tableColumn1,tableColumn2,tableColumn3,tableColumn4,tableColumn5);
 
         for (Player p :
                 myPlayers) {
@@ -51,8 +54,7 @@ public class VueBestScore {
         Button bReturn = FactoryLayout.generateButtonReturnHome();
 
         vBxScore = FactoryLayout.createVBOX(vBox,bReturn);
-        SceneScore = new Scene(vBxScore,270,500);
-
+        SceneScore = new Scene(vBxScore,400,520);
     }
 
     public Scene getSceneScore() {

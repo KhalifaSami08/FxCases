@@ -9,24 +9,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.stage.Stage;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-
 
 public class Controller {
 
     public static final Stage primaryStage = Main.primaryStage; //Scenes
     private static Player player;
     private static Background backGroundColor;
-
-//    private PropertyChangeSupport propertyChangeSupport;
-//    private ArrayList<GameBoard> arrayListGameBoard;
-//    private GameBoard gameBoard;
-
+    private static Boxes firstButtonClick;
 
     private VueGame game;
     private final VueConfiguration configuration;
@@ -39,15 +29,15 @@ public class Controller {
         Controller.player = player;
 
         game = new VueGame();
+        game.getGameBoard().addObserver(game);
+
         configuration = new VueConfiguration();
         bestScore = new VueBestScore();
         menu = new VueMenu();
         menuScene = menu.getSceneMenu();
         setOnActionButtons();
         manageTimerGame();
-//        arrayListGameBoard = new ArrayList<>();
-//        propertyChangeSupport = new PropertyChangeSupport(this);
-//        addPropertyChangeListener(gameBoard);
+        activeCheatCode();
     }
 
     public void ShowAll() {
@@ -55,7 +45,7 @@ public class Controller {
         primaryStage.show();
     }
 
-    private void manageTimerGame(){
+    private void manageTimerGame() {
 
         Controller.primaryStage.setOnCloseRequest(e -> {
             System.out.println("Stage is closing");
@@ -67,11 +57,17 @@ public class Controller {
         });
     }
 
-    private void setOnActionButtons(){
+    private void setOnActionButtons() {
 
-        menu.getBtnGameMenu().setOnAction(e ->{ primaryStage.setScene(getSceneGame());});
-        menu.getBtnConfigMenu().setOnAction(e ->{ primaryStage.setScene(getSceneConfig());});
-        menu.getBtnBestScoreMenu().setOnAction(e ->{ primaryStage.setScene(getSceneScore());});
+        menu.getBtnGameMenu().setOnAction(e -> {
+            primaryStage.setScene(getSceneGame());
+        });
+        menu.getBtnConfigMenu().setOnAction(e -> {
+            primaryStage.setScene(getSceneConfig());
+        });
+        menu.getBtnBestScoreMenu().setOnAction(e -> {
+            primaryStage.setScene(getSceneScore());
+        });
 
         configuration.getbThemeDark().setOnAction(new ButtonConfigHandlerColor());
         configuration.getbThemeGreen().setOnAction(new ButtonConfigHandlerColor());
@@ -86,8 +82,7 @@ public class Controller {
         setonActionGameButtons();
     }
 
-    private void setonActionGameButtons(){
-
+    private void setonActionGameButtons() {
         ArrayList<Boxes> allButtons = game.getGameBoard().getAllboxes();
         for (Boxes b :
                 allButtons) {
@@ -95,28 +90,26 @@ public class Controller {
         }
     }
 
+    private void activeCheatCode(){
 
-   /* public void buildNewGameBoard(GameBoard addGameBoard) {
-        System.out.println("new Gameboard Added");
-        this.arrayListGameBoard.add(addGameBoard);
-        gameBoard.addPropertyChangeListener(addGameBoard);
+        game.getlName().setOnMouseClicked(e ->{
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setContentText("Cheat Code Activated ! ");
+            a.showAndWait();
+            for (Boxes boxes :
+                    game.getGameBoard().getAllboxes()) {
+
+                Button b = boxes.getButton();
+                b.setOnMouseEntered(ev -> {
+                    b.setBackground(FactoryLayout.firstBack);
+                });
+                b.setOnMouseExited(ev -> {
+                    b.setBackground(FactoryLayout.secondBack);
+                });
+            }
+            player.setCheatActivated(true);
+        });
     }
-
-    public void destroyGameBoard(GameBoard removeBoxesChecked) {
-        System.out.println("GameBoard destroyed");
-        this.arrayListGameBoard.remove(removeBoxesChecked);
-        gameBoard.removePropertyChangeListener(removeBoxesChecked);
-    }
-
-    public void notifyBoxes(Boxes boxes) {
-        propertyChangeSupport.firePropertyChange("newBoxesValidated", gameBoard.getBoxes() , boxes);
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        propertyChangeSupport.addPropertyChangeListener(propertyChangeListener);
-    }*/
-
-    private static Boxes firstButtonClick;
 
     //GAME
     public class ButtonLauchGameHandler implements EventHandler<ActionEvent> {
@@ -143,11 +136,12 @@ public class Controller {
             //click ok
             } else {
 
-                if (firstButtonClick == null) { //first click
+                //first click
+                if (firstButtonClick == null) {
 
                     firstButtonClick = boxes;
                     firstButtonClick.setOk(true);
-                    GameBoard.changeButtonBackcolorOnClick(b);
+                    game.getGameBoard().changeButtonBackcolorOnClick(b);
 
                 //second click
                 } else {
@@ -155,55 +149,51 @@ public class Controller {
                     //match
                     if (firstButtonClick.getButton().getText().equalsIgnoreCase(b.getText())) {
 
-                        GameBoard.changeButtonBackcolorOnClick(b);
-                        firstButtonClick.setOk(true);
-                        boxes.setOk(true);
-                        System.out.println("first not null and egal");
-                        player.setScore(player.getScore() + game.getGameBoard().getGridNb_Rows_Col()/2);
+                        game.getGameBoard().validateAndOk(firstButtonClick,boxes, player);
 
-                    } else { //not match
+                    //not match
+                    } else {
 
-                        GameBoard.resetButtonifClickNotMatch(firstButtonClick.getButton(),b);
-                        firstButtonClick.setOk(false);
-                        System.out.println("first not null and not egal");
-                        player.setScore(player.getScore() - 1);
+                        game.getGameBoard().validateNotOk(firstButtonClick,boxes, player);
+
                     }
-
                     firstButtonClick = null;
-                    game.getlScore().setText("Score : " + player.getScore());
                 }
                 //END GAME
-                if(game.getGameBoard().checkEndGame()){
-                    Alert a = new Alert(Alert.AlertType.INFORMATION);
-                        a.setTitle("Win");
-                        a.setContentText("Congratulations ! you winned with "+player.getScore()+" points ! ");
-                    a.showAndWait();
-
-                    player.setSeconds(game.getTimerSeconds());
-                    AllPlayers.WriteFile(player);
-                    bestScore = new VueBestScore();
-                    primaryStage.setScene(getSceneMenu());
+                if (game.getGameBoard().checkEndGame()) {
+                    endGame();
                 }
             }
+        }
+
+        private void endGame(){
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setTitle("Win");
+            a.setContentText("Congratulations ! you winned with " + player.getScore() + " points ! ");
+            a.showAndWait();
+
+            player.setSeconds(game.getTimerSeconds());
+            AllPlayers.WriteFile(player);
+            bestScore = new VueBestScore();
+            primaryStage.setScene(getSceneMenu());
         }
     }
 
     //CONFIG
-    public class ButtonConfigOk implements EventHandler<ActionEvent>{
+    public class ButtonConfigOk implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent actionEvent) {
             Alert a;
-            if(configuration.gettXfEditName().getText().equals("")){
+            if (configuration.gettXfEditName().getText().equals("")) {
                 a = new Alert(Alert.AlertType.ERROR);
                 a.setTitle("Not Complete");
                 a.setContentText("Your name is empty ! ");
-            }
-            else{
+            } else {
                 player.setName(configuration.gettXfEditName().getText());
                 a = new Alert(Alert.AlertType.INFORMATION);
-                    a.setTitle("Ok");
-                    a.setContentText("Player Updated ! \n Your name is : "+player.getName()+"\n and Your difficulty is : "+player.getDifficulty());
+                a.setTitle("Ok");
+                a.setContentText("Player Updated ! \n Your name is : " + player.getName() + "\n and Your difficulty is : " + player.getDifficulty());
 
                 setGame(new VueGame());
                 setonActionGameButtons();
@@ -226,20 +216,19 @@ public class Controller {
             menu.getvBxMenu().setBackground(b);
         }
 
-        private Background getPersonPref(ActionEvent e){
+        private Background getPersonPref(ActionEvent e) {
             Background b;
 
-                if (e.getSource() == configuration.getbThemeDark()) {
-                    b = Theme.Dark;
-                } else if (e.getSource() == configuration.getbThemeGreen()) {
-                    b = Theme.Green;
-                } else if (e.getSource() == configuration.getbThemeRed()) {
-                    b = Theme.Red;
-                }
-                else{
-                    throw new RuntimeException("Error GET PREFERENCES");
-                }
-                return b;
+            if (e.getSource() == configuration.getbThemeDark()) {
+                b = Theme.Dark;
+            } else if (e.getSource() == configuration.getbThemeGreen()) {
+                b = Theme.Green;
+            } else if (e.getSource() == configuration.getbThemeRed()) {
+                b = Theme.Red;
+            } else {
+                throw new RuntimeException("Error GET PREFERENCES");
+            }
+            return b;
         }
     }
 
@@ -248,21 +237,19 @@ public class Controller {
         @Override
         public void handle(ActionEvent actionEvent) {
             player.setDifficulty(getNb(actionEvent));
-            configuration.getlDiff().setText("Difficulty : "+getNb(actionEvent));
+            configuration.getlDiff().setText("Difficulty : " + getNb(actionEvent));
         }
-        private Difficulty getNb(ActionEvent e){
+
+        private Difficulty getNb(ActionEvent e) {
             Difficulty i;
 
-            if(e.getSource() == configuration.getbEasy()){
+            if (e.getSource() == configuration.getbEasy()) {
                 i = Difficulty.EASY;
-            }
-            else if(e.getSource() == configuration.getbMedium()){
+            } else if (e.getSource() == configuration.getbMedium()) {
                 i = Difficulty.MEDIUM;
-            }
-            else if(e.getSource() == configuration.getbHard()){
+            } else if (e.getSource() == configuration.getbHard()) {
                 i = Difficulty.HARD;
-            }
-            else{
+            } else {
                 throw new RuntimeException("Error Get NB CASES");
             }
             return i;
@@ -300,6 +287,4 @@ public class Controller {
     public Scene getSceneScore() {
         return bestScore.getSceneScore();
     }
-
-
 }

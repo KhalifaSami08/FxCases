@@ -2,18 +2,19 @@ package be.sami.Vue;
 
 import be.sami.Controller;
 import be.sami.Model.*;
+import be.sami.Model.Observer;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class VueGame {
+public class VueGame implements Observer {
 
     private final GameBoard gameBoard;
     private final Label lName,lTimer;
@@ -27,7 +28,7 @@ public class VueGame {
     private VBox vBxGame;
     private Scene SceneGame;
 
-    public VueGame() {
+    public VueGame(){
 
         timerSeconds = 0;
         timer = null;
@@ -39,7 +40,6 @@ public class VueGame {
 
         initGame();
         initTimer();
-        activeCheatCode();
     }
 
     private int attributeVisibleButtonsTime() {
@@ -115,39 +115,12 @@ public class VueGame {
         SceneGame = new Scene(vBxGame, 600, 700);
     }
 
-    private void activeCheatCode(){
-
-        lName.setOnMouseClicked(e ->{
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setContentText("Cheat Code Activated ! ");
-            a.showAndWait();
-            for (Boxes boxes :
-                    gameBoard.getAllboxes()) {
-
-                Button b = boxes.getButton();
-
-                b.setOnMouseEntered(ev -> {
-                    b.setBackground(FactoryLayout.firstBack);
-//                  b.setTextFill(FactoryLayout.secondBackGroundColor);
-                });
-                b.setOnMouseExited(ev -> {
-                    b.setBackground(FactoryLayout.secondBack);
-                });
-            }
-        });
-
-    }
-
     public VBox getvBxGame() {
         return vBxGame;
     }
 
     public Scene getSceneGame() {
         return SceneGame;
-    }
-
-    public Label getlScore() {
-        return lScore;
     }
 
     public GameBoard getGameBoard() {
@@ -168,6 +141,35 @@ public class VueGame {
 
     public Button getbReturn() {
         return bReturn;
+    }
+
+    public Label getlName() {
+        return lName;
+    }
+
+    @Override
+    public void modify(Object obj,int param) {
+
+        if(obj instanceof Player){
+            Player player = (Player) obj;
+            lScore.setText("Score : " + player.getScore());
+        }else{
+
+            ArrayList<Boxes> boxesOk = (ArrayList<Boxes>) obj;
+
+            if(param == 1){
+                boxesOk.get(0).setOk(true);
+                boxesOk.get(1).setOk(true);
+                gameBoard.changeButtonBackcolorOnClick(boxesOk.get(1).getButton());
+            }
+            else if (param == 2){
+                boxesOk.get(0).setOk(false);
+                boxesOk.get(1).setOk(false);
+                gameBoard.resetButtonifClickNotMatch(boxesOk.get(0).getButton(),boxesOk.get(1).getButton());
+            }
+
+            System.out.println("Modifying GameBoard");
+        }
     }
 }
 
