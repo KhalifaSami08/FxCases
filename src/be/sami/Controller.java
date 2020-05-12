@@ -1,8 +1,8 @@
 package be.sami;
 
 import be.sami.Model.*;
+import be.sami.Model.Cell;
 import be.sami.Vue.*;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -11,13 +11,13 @@ import javafx.scene.layout.Background;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Controller {
 
     public static final Stage primaryStage = Main.primaryStage; //Scenes
     private static Player player;
     private static Background backGroundColor;
-//    private static Boxes firstButtonClick;
 
     private VueGame game;
     private final VueConfiguration configuration;
@@ -39,13 +39,14 @@ public class Controller {
         setOnActionButtons();
     }
 
+//  Show to Main
     public void ShowAll() {
         primaryStage.setScene(menu.getSceneMenu());
         primaryStage.show();
     }
 
+//  Closing Timer when Closing Game or Closing app
     private void manageTimerGame() {
-
         Controller.primaryStage.setOnCloseRequest(e -> {
             System.out.println("Stage is closing");
             game.getTimer().cancel();
@@ -57,6 +58,7 @@ public class Controller {
         });
     }
 
+//  Construct the GameScene
     private void constructGame(){
         game = new VueGame();
         game.getGameBoard().addObserver(game);
@@ -65,8 +67,11 @@ public class Controller {
         activeCheatCode();
     }
 
+    /**
+     * Set All Scene Action Buttons except Games buttons which
+     *  is not instancied with others scenes it will be under this methods
+     */
     private void setOnActionButtons() {
-
         menu.getBtnGameMenu().setOnAction(e -> {
             constructGame();
             primaryStage.setScene(getSceneGame());
@@ -89,24 +94,27 @@ public class Controller {
         configuration.getbOk().setOnAction(new ButtonConfigOk());
     }
 
+
     private void setonActionGameButtons() {
-        ArrayList<Boxes> allButtons = game.getGameBoard().getAllMyBoxes();
-        for (Boxes b :
+        ArrayList<Cell> allButtons = game.getGameBoard().getAllMyBoxes();
+        for (Cell b :
                 allButtons) {
             b.getButton().setOnAction(new ButtonLauchGameHandler(b));
         }
     }
 
+    /**
+     * Cheat code is implemented in Game Scene but controlled here
+     */
     private void activeCheatCode(){
-
         game.getlName().setOnMouseClicked(e ->{
             Alert a = new Alert(Alert.AlertType.INFORMATION);
             a.setContentText("Cheat Code Activated ! ");
             a.showAndWait();
-            for (Boxes boxes :
+            for (Cell cell :
                     game.getGameBoard().getAllMyBoxes()) {
 
-                Button b = boxes.getButton();
+                Button b = cell.getButton();
                 b.setOnMouseEntered(ev -> {
                     b.setBackground(FactoryLayout.firstBack);
                 });
@@ -119,33 +127,38 @@ public class Controller {
 
         game.getlName().setOnMouseEntered(e ->{
             game.getlName().setText("Click for CheatCode ! ");
-            for (Boxes boxes :
+            for (Cell cell :
                     game.getGameBoard().getAllMyBoxes()) {
 
-                Button b = boxes.getButton();
+                Button b = cell.getButton();
                 b.setTextFill(FactoryLayout.firstBackGroundColor);
             }
         });
 
         game.getlName().setOnMouseExited(e ->{
             game.getlName().setText("Hello : "+player.getName());
-            for (Boxes boxes :
+            for (Cell cell :
                     game.getGameBoard().getAllMyBoxes()) {
 
-                Button b = boxes.getButton();
+                Button b = cell.getButton();
                 b.setTextFill(FactoryLayout.secondBackGroundColor);
             }
         });
     }
 
+    /**
+     * Following methods are catching Click buttons,
+     * this one is for game set
+     */
+
     //GAME
-    public class ButtonLauchGameHandler implements EventHandler<ActionEvent> {
+    private class ButtonLauchGameHandler implements EventHandler<ActionEvent> {
 
         private final Button b;
-        private final Boxes boxes;
+        private final Cell cell;
 
-        public ButtonLauchGameHandler(Boxes b) {
-            this.boxes = b;
+        public ButtonLauchGameHandler(Cell b) {
+            this.cell = b;
             this.b = b.getButton();
 //            firstButtonClick = GameBoardgetFirstButtonClick();
         }
@@ -154,7 +167,7 @@ public class Controller {
         public void handle(ActionEvent actionEvent) {
 
             //Already checked or confirmed
-            if (boxes.isOk()) {
+            if (cell.isOk()) {
 
                 Alert a = new Alert(Alert.AlertType.INFORMATION);
                 a.setContentText("You Cannot Change this Case ! \n The game has not started yet or button is already validated ! ");
@@ -166,7 +179,7 @@ public class Controller {
                 //first click
                 if (GameBoard.getFirstButtonClick() == null) {
 
-                    GameBoard.setFirstButtonClick(boxes);
+                    GameBoard.setFirstButtonClick(cell);
                     GameBoard.getFirstButtonClick().setOk(true);
                     game.getGameBoard().changeButtonBackcolorOnClick(b);
 
@@ -176,38 +189,28 @@ public class Controller {
                     //match
                     if (GameBoard.getFirstButtonClick().getButton().getText().equalsIgnoreCase(b.getText())) {
 
-                        game.getGameBoard().validateAndOk(boxes, player);
+                        game.getGameBoard().validateAndOk(cell, player);
 
                     //not match
                     } else {
 
-                        game.getGameBoard().validateNotOk(boxes, player);
+                        game.getGameBoard().validateNotOk(cell, player);
 
                     }
                     GameBoard.setFirstButtonClick(null);
                 }
                 //END GAME
                 if (game.getGameBoard().checkEndGame()) {
-                    endGame();
+                    game.getGameBoard().endGame(player,game.getTimerSeconds());
+                    bestScore = new VueBestScore();
+                    primaryStage.setScene(getSceneMenu());
                 }
             }
         }
-
-        private void endGame(){
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setTitle("Win");
-            a.setContentText("Congratulations ! you winned with " + player.getScore() + " points ! ");
-            a.showAndWait();
-
-            player.setSeconds(game.getTimerSeconds());
-            AllPlayers.WriteFile(player);
-            bestScore = new VueBestScore();
-            primaryStage.setScene(getSceneMenu());
-        }
     }
 
-    //CONFIG
-    public class ButtonConfigOk implements EventHandler<ActionEvent> {
+//  Config Confirmation buttons handlers
+    private class ButtonConfigOk implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent actionEvent) {
@@ -230,11 +233,12 @@ public class Controller {
         }
     }
 
-    public class ButtonConfigHandlerColor implements EventHandler<ActionEvent> {
+//  Config Difficulty buttons handlers
+    private class ButtonConfigHandlerColor implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent actionEvent) {
-            Background b = getPersonPref(actionEvent);
+            Background b = getPref(actionEvent);
             backGroundColor = b;
             game.getvBxGame().setBackground(b);
             configuration.getvBxConfig().setBackground(b);
@@ -243,15 +247,15 @@ public class Controller {
             menu.getvBxMenu().setBackground(b);
         }
 
-        private Background getPersonPref(ActionEvent e) {
+        private Background getPref(ActionEvent e) {
             Background b;
 
             if (e.getSource() == configuration.getbThemeDark()) {
-                b = Theme.Dark;
+                b = Theme.DARK;
             } else if (e.getSource() == configuration.getbThemeGreen()) {
-                b = Theme.Green;
+                b = Theme.GREEN;
             } else if (e.getSource() == configuration.getbThemeRed()) {
-                b = Theme.Red;
+                b = Theme.RED;
             } else {
                 throw new RuntimeException("Error GET PREFERENCES");
             }
@@ -259,15 +263,16 @@ public class Controller {
         }
     }
 
-    public class ButtonConfigHandlerDifficulty implements EventHandler<ActionEvent> {
+//  Config Colors buttons handlers
+    private class ButtonConfigHandlerDifficulty implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent actionEvent) {
-            player.setDifficulty(getNb(actionEvent));
-            configuration.getlDiff().setText("Difficulty : " + getNb(actionEvent));
+            player.setDifficulty(getDifficulty(actionEvent));
+            configuration.getlDiff().setText("Difficulty : " + getDifficulty(actionEvent));
         }
 
-        private Difficulty getNb(ActionEvent e) {
+        private Difficulty getDifficulty(ActionEvent e) {
             Difficulty i;
 
             if (e.getSource() == configuration.getbEasy()) {

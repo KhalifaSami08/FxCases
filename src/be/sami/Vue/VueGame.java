@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 
 public class VueGame implements Observer {
@@ -42,6 +43,21 @@ public class VueGame implements Observer {
         initTimer();
     }
 
+    private void initGame() {
+
+        lScore = FactoryLayout.createLabel("Score : " + 0);
+        bReturn = FactoryLayout.generateButtonReturnHome();
+
+        vBxGame = FactoryLayout.createVBOX(lName, lTimer, gameBoard.getGridPane(), lScore, bReturn);
+        SceneGame = new Scene(vBxGame, 600, 700);
+    }
+
+    /**
+     *
+     * Following Method depend of the difficulty of the player,and depending to it,
+     * and it is used for displaying remaining time before the game start
+     *
+     */
     private int attributeVisibleButtonsTime() {
         int buttonsGameVisible;
         switch (Controller.getPlayer().getDifficulty()) {
@@ -66,15 +82,14 @@ public class VueGame implements Observer {
             @Override
             public void run() {
 
-                for (Boxes allbox : gameBoard.getAllMyBoxes()) {
+                for (Cell allbox : gameBoard.getAllMyBoxes()) {
 
                     Button b = allbox.getButton();
                     Platform.runLater(() -> {
+                        //if Game not started yet
                         if (timerSeconds < attributeVisibleButtonsTime()) {
                             allbox.setOk(true);
-
                             lTimer.setText("Time Left Before Start Game : " + (attributeVisibleButtonsTime() - timerSeconds));
-
                             b.setTextFill(FactoryLayout.firstBackGroundColor);
 
                             b.setOnMouseEntered(e -> {
@@ -87,6 +102,7 @@ public class VueGame implements Observer {
                                 b.setTextFill(FactoryLayout.firstBackGroundColor);
                             });
 
+                        //if Game started
                         } else if (attributeVisibleButtonsTime() == timerSeconds) {
                             allbox.setOk(false);
                             lTimer.setText("Time : " + timerSeconds);
@@ -102,6 +118,7 @@ public class VueGame implements Observer {
                                 b.setTextFill(FactoryLayout.secondBackGroundColor);
                             });
                         }
+                        //only for timer
                         else{
                             lTimer.setText("Time : " +timerSeconds);
                         }
@@ -112,15 +129,6 @@ public class VueGame implements Observer {
             }
         };
         getTimer().schedule(getTimerTask(), 1000, 1000);
-    }
-
-    private void initGame() {
-
-        lScore = FactoryLayout.createLabel("Score : " + 0);
-        bReturn = FactoryLayout.generateButtonReturnHome();
-
-        vBxGame = FactoryLayout.createVBOX(lName, lTimer, gameBoard.getGridPane(), lScore, bReturn);
-        SceneGame = new Scene(vBxGame, 600, 700);
     }
 
     public VBox getvBxGame() {
@@ -155,6 +163,7 @@ public class VueGame implements Observer {
         return lName;
     }
 
+//  for Observer
     @Override
     public void modify(Object obj, int param) {
 
@@ -163,16 +172,16 @@ public class VueGame implements Observer {
             lScore.setText("Score : " + player.getScore());
         } else {
 
-            ArrayList<Boxes> boxesOk = (ArrayList<Boxes>) obj;
+            ArrayList<Cell> cellOk = (ArrayList<Cell>) obj;
 
             if (param == 1) {
-                boxesOk.get(0).setOk(true);
-                boxesOk.get(1).setOk(true);
-                gameBoard.changeButtonBackcolorOnClick(boxesOk.get(1).getButton());
+                cellOk.get(0).setOk(true);
+                cellOk.get(1).setOk(true);
+                gameBoard.changeButtonBackcolorOnClick(cellOk.get(1).getButton());
             } else if (param == 2) {
-                boxesOk.get(0).setOk(false);
-                boxesOk.get(1).setOk(false);
-                gameBoard.resetButtonifClickNotMatch(boxesOk.get(0).getButton(), boxesOk.get(1).getButton());
+                cellOk.get(0).setOk(false);
+                cellOk.get(1).setOk(false);
+                gameBoard.resetButtonifClickNotMatch(cellOk.get(0).getButton(), cellOk.get(1).getButton());
             }
 
             System.out.println("Modifying GameBoard");

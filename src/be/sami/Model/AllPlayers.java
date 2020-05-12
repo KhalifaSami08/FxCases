@@ -11,7 +11,7 @@ public class AllPlayers {
     private static final ArrayList<Player> allPlayers = new ArrayList<>();
 
     public AllPlayers(){
-        ReadFile();
+        readFile();
     }
 
     public static ArrayList<Player> getAllPlayers() {
@@ -21,14 +21,12 @@ public class AllPlayers {
     public boolean isPlayerExist(String playerName){
         for (Player p :
                 allPlayers) {
-            if(p.getName().equals(playerName)){
-                return true;
-            }
+                return p.getName().equals(playerName);
         }
         return false;
     }
 
-    private void ReadFile() {
+    private void readFile() {
         try {
             FileReader read = new FileReader("src\\be\\sami\\Model\\Players.csv");
             Scanner scan = new Scanner(read);
@@ -50,8 +48,7 @@ public class AllPlayers {
         }
     }
 
-    public static void WriteFile(Player player){
-
+    public static void writeFile(Player player){
         allPlayers.add(player);
         try {
             FileWriter fileWriter = new FileWriter("src\\be\\sami\\Model\\Players.csv");

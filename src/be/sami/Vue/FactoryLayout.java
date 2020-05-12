@@ -16,7 +16,8 @@ import javafx.scene.paint.Paint;
 public class FactoryLayout {
 
     public static final Paint firstBackGroundColor = Color.rgb(50,50,50);
-    public static final Paint secondBackGroundColor = Color.WHEAT; //Color.rgb(150,150,150);
+    public static final Paint secondBackGroundColor = Color.WHEAT;
+
     public static final Background firstBack = new Background(new BackgroundFill(firstBackGroundColor,null,null));
     public static final Background secondBack = new Background(new BackgroundFill(secondBackGroundColor,null,null));
     public static final int boxPadding = 25;
@@ -39,7 +40,6 @@ public class FactoryLayout {
     public static Button generateButtonReturnHome(){
         Button button = FactoryLayout.createButton("Return Home");
             button.setOnAction(e -> Controller.primaryStage.setScene(Controller.getMenuScene()));
-
         return button;
     }
 
@@ -71,7 +71,6 @@ public class FactoryLayout {
         VBox vBox = new VBox(boxPadding,nodes);
             vBox.setAlignment(Pos.CENTER); //Default
             vBox.setBackground(Controller.getBackGroundColor());
-
         return vBox;
     }
 

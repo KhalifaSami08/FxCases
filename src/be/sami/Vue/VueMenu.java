@@ -1,6 +1,5 @@
 package be.sami.Vue;
 
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
@@ -17,13 +16,11 @@ public class VueMenu {
     }
 
     private void initMenu() {
-        int btnPaddingY = 10;
-        int btnPaddingX = 120;
-
-        Insets insetPadding = new Insets(btnPaddingY, btnPaddingX, btnPaddingY, btnPaddingX);//Right Bottom Left Top
 
         btnGameMenu = FactoryLayout.createButton("Launch Game");
-        btnGameMenu.setPadding(insetPadding);
+        btnGameMenu.setMinSize(150,40);
+        btnGameMenu.setMaxSize(350,40);
+
         btnGameMenu.setOnAction(e -> {
                 /*if(player == null){
                     Alert a = new Alert(Alert.AlertType.ERROR);
@@ -38,10 +35,12 @@ public class VueMenu {
         });
 
         btnConfigMenu = FactoryLayout.createButton("Configurations");
-        btnConfigMenu.setPadding(insetPadding);
+        btnConfigMenu.setMinSize(150,40);
+        btnConfigMenu.setMaxSize(350,40);
 
-        btnBestScoreMenu = FactoryLayout.createButton("Best Scores");
-        btnBestScoreMenu.setPadding(insetPadding);
+        btnBestScoreMenu = FactoryLayout.createButton("Scores");
+        btnBestScoreMenu.setMinSize(150,40);
+        btnBestScoreMenu.setMaxSize(350,40);
 
         vBxMenu = FactoryLayout.createVBOX(btnGameMenu,btnConfigMenu,btnBestScoreMenu);
         SceneMenu = new Scene(vBxMenu,550,400);

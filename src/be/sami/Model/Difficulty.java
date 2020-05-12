@@ -5,6 +5,7 @@ public enum Difficulty {
     MEDIUM,
     HARD;
 
+    //Cast String into Difficulty While Reading a File
     public static Difficulty CastDifficulty(String difficulty)  {
         Difficulty d;
 
@@ -18,10 +19,11 @@ public enum Difficulty {
             d = Difficulty.HARD;
         }
         else{
-            throw new RuntimeException("CAST DIFFICULTY IMPOSSIBLE");
+            throw new RuntimeException("CAST DIFFICULTY : READING FILE IMPOSSIBLE");
         }
         return d;
     }
+    //Set number of rows_col
     public static int CastDifficultyString(Difficulty difficulty)  {
         int i;
 
@@ -35,7 +37,7 @@ public enum Difficulty {
             i = 8;
         }
         else{
-            throw new RuntimeException("CAST DIFFICULTY IMPOSSIBLE");
+            throw new RuntimeException("CAST DIFFICULTY : SET NUMBER OF ROWS IMPOSSIBLE ");
         }
         return i;
     }

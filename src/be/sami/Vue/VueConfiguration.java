@@ -38,13 +38,13 @@ public class VueConfiguration {
         Label lBackground = FactoryLayout.createLabel("Chose Theme : ");
 
         bThemeDark = FactoryLayout.createButton("Default");
-        FactoryLayout.ChangeBackground(bThemeDark, Theme.Dark);
+        FactoryLayout.ChangeBackground(bThemeDark, Theme.DARK);
 
         bThemeGreen = FactoryLayout.createButton("Green");
-        FactoryLayout.ChangeBackground(bThemeGreen,Theme.Green);
+        FactoryLayout.ChangeBackground(bThemeGreen,Theme.GREEN);
 
         bThemeRed = FactoryLayout.createButton("Red");
-        FactoryLayout.ChangeBackground(bThemeRed,Theme.Red);
+        FactoryLayout.ChangeBackground(bThemeRed,Theme.RED);
 
         HBox h1 = FactoryLayout.createHBOX(bThemeDark,bThemeGreen,bThemeRed);
             h1.setBackground(FactoryLayout.firstBack);
@@ -62,7 +62,7 @@ public class VueConfiguration {
         FactoryLayout.ChangeTextFillAndLabel(bHard,Color.DARKRED);
 
         HBox h2 = FactoryLayout.createHBOX(bEasy,bMedium,bHard);
-            h2.setBackground(Theme.Dark);
+            h2.setBackground(Theme.DARK);
             h2.setPadding(insetsHbox);
 
         bOk = FactoryLayout.createButton("OK");

@@ -3,21 +3,21 @@ package be.sami.Model;
 import be.sami.Vue.FactoryLayout;
 import javafx.scene.control.Button;
 
-public class Boxes {
+public class Cell {
 
     private final Position position;
     private Button button;
     private boolean isOk;
 
 
-    public Boxes(Position position) {
+    public Cell(Position position) {
         this.position = position;
         this.isOk = false;
-        createButton();
+        createButtons();
     }
 
-    private void createButton(){
-        button = new Button("");
+    private void createButtons(){
+        button = new Button();
         button.setBackground(FactoryLayout.secondBack);
         button.setTextFill(FactoryLayout.secondBackGroundColor);
 
@@ -30,7 +30,6 @@ public class Boxes {
             button.setBackground(FactoryLayout.secondBack);
             button.setTextFill(FactoryLayout.secondBackGroundColor);
         });
-
     }
 
     public Position getPosition() {
